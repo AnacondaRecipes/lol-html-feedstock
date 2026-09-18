@@ -1,0 +1,56 @@
+{% set name = "lol-html" %}
+{% set version = "3.0.1" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://github.com/cloudflare/{{ name }}/archive/refs/tags/v{{ version }}.tar.gz
+  sha256: 76b29b987ede8ea8971edf4a07a0e2edf5a1dfe21a8d2c073f6534d01b2f5c9f
+
+build:
+  number: 0
+  run_exports:
+    - {{ pin_subpackage('lol-html', max_pin='x.x.x') }}
+
+requirements:
+  build:
+    - {{ stdlib('c') }}
+    - {{ compiler('c') }}
+    - {{ compiler('rust') }}
+    - cargo-bundle-licenses
+    - cargo-auditable
+    - cargo-c
+
+test:
+  commands:
+    - test -f $PREFIX/include/lol_html.h  # [not win]
+    - test -f $PREFIX/lib/liblolhtml.so  # [linux]
+    - test -f $PREFIX/lib/liblolhtml.dylib  # [osx]
+    - test -f $PREFIX/lib/pkgconfig/lol-html.pc  # [not win]
+    - if not exist %LIBRARY_INC%\lol_html.h exit 1  # [win]
+    - if not exist %LIBRARY_BIN%\lolhtml.dll exit 1  # [win]
+    - if not exist %LIBRARY_LIB%\lolhtml.lib exit 1  # [win]
+
+about:
+  home: https://crates.io/crates/lol-html
+  summary: Low output latency streaming HTML parser/rewriter with CSS selector-based API
+  description: |
+    Low Output Latency streaming HTML rewriter/parser with CSS-selector based API.
+
+    It is designed to modify HTML on the fly with minimal buffering. It can quickly handle very large documents, and operate in environments with limited memory resources. More details can be found in the blog post.
+
+    The crate serves as a back-end for the HTML rewriting functionality of Cloudflare Workers, but can be used as a standalone library with a convenient API for a wide variety of HTML rewriting/analysis tasks.
+  license: BSD-3-Clause
+  license_family: BSD
+  license_file:
+    - LICENSE
+    - THIRDPARTY.yml
+  doc_url: https://docs.rs/lol_html
+  dev_url: https://github.com/cloudflare/lol-html
+
+extra:
+  recipe-maintainers:
+    - pavelzw
+    - xhochy
